@@ -119,6 +119,26 @@ class SettingsTest {
     }
 
     @Test
+    void cellCountUsesBothWidthAndHeight() {
+        // Поле 5×20 = 100 клеток. Квадратные поля не отличили бы ширину от высоты.
+        Settings.Builder full = Settings.builder().width(5).height(20)
+                .initialPlants(60).initialHerbivores(30).initialPredators(10);
+        Settings.Builder overfull = Settings.builder().width(5).height(20)
+                .initialPlants(60).initialHerbivores(30).initialPredators(11);
+        assertEquals(List.of(), problemFields(full));
+        assertTrue(problemFields(overfull).contains("initialCount"));
+        assertEquals(List.of(), problemFields(Settings.builder().width(20).height(5)
+                .initialPlants(60).initialHerbivores(30).initialPredators(10)));
+    }
+
+    @Test
+    void everyWrongAgentCountIsReported() {
+        List<String> problems = problemFields(Settings.builder()
+                .initialPlants(-1).initialHerbivores(-1).initialPredators(-1));
+        assertEquals(List.of("initialPlants", "initialHerbivores", "initialPredators"), problems);
+    }
+
+    @Test
     void agentCountSumDoesNotOverflow() {
         // В int: MAX + MAX + 2 == 0, и «0 жителей» влезло бы на любое поле.
         Settings.Builder b = Settings.builder().width(10).height(10)

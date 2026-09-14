@@ -51,7 +51,7 @@ public record Settings(
         check.range("plantStartEnergy", "Начальная энергия растения", plantStartEnergy, 1, MAX_ENERGY);
         check.range("plantGrowth", "Прирост энергии растения за шаг", plantGrowth, 1, MAX_ENERGY);
         check.range("plantMaxEnergy", "Максимум энергии растения", plantMaxEnergy, 1, MAX_ENERGY);
-        check.range("plantReproductionThreshold", "Порог размножения растения", plantReproductionThreshold, 1, MAX_ENERGY - 1);
+        check.range("plantReproductionThreshold", "Порог размножения растения", plantReproductionThreshold, 1, MAX_ENERGY);
         if (plantStartEnergy > plantMaxEnergy) {
             check.fail("plantStartEnergy", "Начальная энергия растения (" + plantStartEnergy
                     + ") больше его максимума (" + plantMaxEnergy + ")");
