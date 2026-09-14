@@ -353,16 +353,16 @@ class HerbivoreTest {
 
     @Test
     void doesNotRunFromOtherHerbivores() {
-        // Сосед-травоядное слева вплотную, растение слева через клетку.
-        // Идёт к растению (влево). Если бы боялся соседа — ушёл бы вправо.
-        World world = new World(7, 1);
-        place(world, 0, 0, 10);
-        world.setAgent(1, 0, new Plant(Settings.defaults()));
-        Herbivore h = place(world, 3, 0, 10);
+        // Сосед-травоядное справа вплотную (его видно), растение справа через клетку.
+        // Идёт к растению — вправо по диагонали в обход соседа. Если бы боялся соседа — ушёл бы влево.
+        World world = new World(7, 7);
+        Herbivore h = place(world, 3, 3, 10);
+        place(world, 4, 3, 10);
+        world.setAgent(5, 3, new Plant(Settings.defaults()));
 
         h.act(world, new Random(1));
 
-        assertEquals(at(2, 0), h.getPosition());
+        assertEquals(4, h.getPosition().x(), "должен пойти к растению, а оказался в " + h.getPosition());
     }
 
     @Test
