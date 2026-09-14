@@ -121,25 +121,28 @@ public record Settings(
                 .seed(seed);
     }
 
-    /** Пошаговая сборка настроек: меняем только нужные поля, остальные берутся по умолчанию. */
+    /**
+     * Пошаговая сборка настроек: меняем только нужные поля, остальные берутся по умолчанию.
+     * Умолчания подобраны перебором так, чтобы все три вида жили долго (см. BalanceTest).
+     */
     public static final class Builder {
-        private int width = 60;
-        private int height = 40;
-        private int initialPlants = 600;
-        private int initialHerbivores = 150;
+        private int width = 100;
+        private int height = 60;
+        private int initialPlants = 2000;
+        private int initialHerbivores = 270;
         private int initialPredators = 30;
-        private int plantStartEnergy = 5;
-        private int plantGrowth = 1;
-        private int plantMaxEnergy = 20;
-        private int plantReproductionThreshold = 10;
-        private int herbivoreStartEnergy = 20;
+        private int plantStartEnergy = 3;
+        private int plantGrowth = 3;
+        private int plantMaxEnergy = 12;
+        private int plantReproductionThreshold = 9;
+        private int herbivoreStartEnergy = 13;
         private int herbivoreStepCost = 1;
-        private int herbivoreFoodEnergy = 8;
-        private int herbivoreReproductionThreshold = 30;
-        private int predatorStartEnergy = 40;
-        private int predatorStepCost = 1;
-        private int predatorFoodEnergy = 20;
-        private int predatorReproductionThreshold = 60;
+        private int herbivoreFoodEnergy = 14;
+        private int herbivoreReproductionThreshold = 26;
+        private int predatorStartEnergy = 52;
+        private int predatorStepCost = 2;
+        private int predatorFoodEnergy = 13;
+        private int predatorReproductionThreshold = 103;
         private long seed = 42;
 
         private Builder() {
