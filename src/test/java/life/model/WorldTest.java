@@ -187,6 +187,33 @@ class WorldTest {
         assertSame(stone, first.getAgent(1, 1));
     }
 
+    @Test
+    void agentFromAnotherWorldDoesNotRemoveWhoeverStandsAtSameCoordinates() {
+        World first = new World(3, 3);
+        World second = new World(3, 3);
+        Stone stranger = new Stone();
+        Stone local = new Stone();
+        first.setAgent(1, 1, stranger);
+        second.setAgent(1, 1, local);
+
+        assertThrows(IllegalStateException.class, () -> second.removeAgent(stranger));
+        assertThrows(IllegalStateException.class, () -> second.moveAgent(stranger, at(0, 0)));
+        assertSame(local, second.getAgent(1, 1), "чужой житель не должен выселить местного");
+        assertEquals(at(1, 1), local.getPosition());
+        assertTrue(second.isEmpty(at(0, 0)));
+    }
+
+    @Test
+    void agentFromBiggerWorldGivesClearErrorInsteadOfCrash() {
+        World big = new World(10, 10);
+        World small = new World(3, 3);
+        Stone stone = new Stone();
+        big.setAgent(7, 8, stone);
+
+        assertThrows(IllegalStateException.class, () -> small.removeAgent(stone));
+        assertThrows(IllegalStateException.class, () -> small.moveAgent(stone, at(0, 0)));
+    }
+
     // ---------- перемещение ----------
 
     @Test
