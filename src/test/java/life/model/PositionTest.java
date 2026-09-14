@@ -20,4 +20,26 @@ class PositionTest {
         assertEquals(new Position(1, 2), new Position(1, 2));
         assertNotEquals(new Position(1, 2), new Position(2, 1));
     }
+
+    @Test
+    void distanceSquaredUsesBothAxes() {
+        assertEquals(25, new Position(1, 2).distanceSquaredTo(new Position(4, 6)));
+        assertEquals(9, new Position(1, 2).distanceSquaredTo(new Position(4, 2)));
+        assertEquals(16, new Position(1, 2).distanceSquaredTo(new Position(1, 6)));
+    }
+
+    @Test
+    void distanceIsSymmetricAndZeroToItself() {
+        Position a = new Position(-3, 5);
+        Position b = new Position(2, -1);
+        assertEquals(a.distanceSquaredTo(b), b.distanceSquaredTo(a));
+        assertEquals(61, a.distanceSquaredTo(b));
+        assertEquals(0, a.distanceSquaredTo(a));
+    }
+
+    @Test
+    void distanceDoesNotOverflow() {
+        long max = Integer.MAX_VALUE;
+        assertEquals(max * max, new Position(0, 0).distanceSquaredTo(new Position(Integer.MAX_VALUE, 0)));
+    }
 }
