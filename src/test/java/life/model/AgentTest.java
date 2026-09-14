@@ -205,12 +205,15 @@ class AgentTest {
 
     @Test
     void childCellIsChosenRandomlyNotAlwaysTheSame() {
+        // Один генератор на все попытки, как в симуляции. У java.util.Random первое число
+        // при соседних seed (0, 1, 2…) почти всегда одинаковое, поэтому новый Random на попытку не годится.
+        Random random = new Random(42);
         Set<Position> places = new HashSet<>();
-        for (long seed = 0; seed < 50; seed++) {
+        for (int attempt = 0; attempt < 50; attempt++) {
             World world = new World(3, 3);
             Blob parent = new Blob(50, 10);
             world.setAgent(1, 1, parent);
-            places.add(parent.tryReproduce(world, new Random(seed)).getPosition());
+            places.add(parent.tryReproduce(world, random).getPosition());
         }
         assertTrue(places.size() >= 6, "дети должны появляться в разных сторонах, а появились только в " + places);
     }
