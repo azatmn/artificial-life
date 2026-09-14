@@ -5,6 +5,7 @@ import life.model.Simulation;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.function.LongSupplier;
 
 /** Консольная версия: показывает поле, читает команды и выполняет их, пока пользователь не выйдет. */
 public class ConsoleApp {
@@ -17,14 +18,24 @@ public class ConsoleApp {
               q         - выход
             """.formatted(CommandParser.MAX_STEPS);
 
+    /** Как часто печатать прогресс долгой команды: раз в секунду. */
+    private static final long PROGRESS_INTERVAL_NANOS = 1_000_000_000L;
+
     private final Simulation simulation;
     private final BufferedReader in;
     private final PrintStream out;
+    /** Текущее время в наносекундах. Снаружи, чтобы тесты могли подставить поддельные часы. */
+    private final LongSupplier clock;
 
     public ConsoleApp(Simulation simulation, BufferedReader in, PrintStream out) {
+        this(simulation, in, out, System::nanoTime);
+    }
+
+    ConsoleApp(Simulation simulation, BufferedReader in, PrintStream out, LongSupplier clock) {
         this.simulation = simulation;
         this.in = in;
         this.out = out;
+        this.clock = clock;
     }
 
     public void run() {
@@ -67,8 +78,15 @@ public class ConsoleApp {
             out.println("Жизнь прекратилась - шагать больше некуда. Выход: q");
             return;
         }
-        for (int i = 0; i < count && !simulation.statistics().allDead(); i++) {
+        // Долгая команда не должна выглядеть зависшей: раз в секунду сообщаем, сколько сделано.
+        long lastReport = clock.getAsLong();
+        for (int i = 1; i <= count && !simulation.statistics().allDead(); i++) {
             simulation.step();
+            long now = clock.getAsLong();
+            if (i < count && now - lastReport >= PROGRESS_INTERVAL_NANOS) {
+                out.println("...выполнено " + i + " из " + count);
+                lastReport = now;
+            }
         }
         show();
         if (simulation.statistics().allDead()) {

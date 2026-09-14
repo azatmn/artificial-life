@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.List;
+import java.util.function.LongSupplier;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
@@ -19,15 +21,39 @@ import static org.junit.jupiter.api.Assertions.*;
 @Timeout(value = 10, threadMode = Timeout.ThreadMode.SEPARATE_THREAD) // зависание в цикле — тоже ошибка
 class ConsoleAppTest {
 
-    private static String run(Simulation simulation, Reader input) {
+    private static String run(Simulation simulation, Reader input, LongSupplier clock) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         PrintStream out = new PrintStream(bytes, true, UTF_8);
-        new ConsoleApp(simulation, new BufferedReader(input), out).run();
+        new ConsoleApp(simulation, new BufferedReader(input), out, clock).run();
         return bytes.toString(UTF_8);
+    }
+
+    /** Часы стоят на месте — прогресс никогда не печатается, остальные тесты от времени не зависят. */
+    private static String run(Simulation simulation, Reader input) {
+        return run(simulation, input, () -> 0L);
     }
 
     private static String run(Simulation simulation, String input) {
         return run(simulation, new StringReader(input));
+    }
+
+    private static String run(Simulation simulation, String input, LongSupplier clock) {
+        return run(simulation, new StringReader(input), clock);
+    }
+
+    /** Поддельные часы: первый вызов показывает 0, каждый следующий — на millis миллисекунд позже. */
+    private static LongSupplier fakeClock(long millis) {
+        long tick = millis * 1_000_000;
+        long[] now = {-tick};
+        return () -> now[0] += tick;
+    }
+
+    /** Строки прогресса без приглашения «> » перед ними. */
+    private static List<String> progressLines(String output) {
+        return output.lines()
+                .filter(line -> line.contains("выполнено"))
+                .map(line -> line.substring(line.indexOf("...")))
+                .toList();
     }
 
     private static Simulation small() {
@@ -141,6 +167,42 @@ class ConsoleAppTest {
         assertEquals(2, sim.getStep());
         assertTrue(occurrences(output, "Жизнь прекратилась") >= 3, output);
         assertFalse(output.contains("Exception"));
+    }
+
+    // ---------- прогресс долгих команд ----------
+
+    @Test
+    void quickCommandShowsNoProgress() {
+        String output = run(small(), "50\nq\n", fakeClock(0));
+        assertEquals(List.of(), progressLines(output));
+    }
+
+    @Test
+    void longCommandReportsProgressEverySecond() {
+        // Часы: старт 0, после шагов 1, 2, 3… — 0,5 с, 1 с, 1,5 с…  Отчёт, как только прошла секунда.
+        Simulation sim = small();
+        String output = run(sim, "10\nq\n", fakeClock(500));
+
+        assertEquals(List.of(
+                "...выполнено 2 из 10",
+                "...выполнено 4 из 10",
+                "...выполнено 6 из 10",
+                "...выполнено 8 из 10"), progressLines(output));
+        assertEquals(10, sim.getStep());
+        assertTrue(output.contains("Шаг 10 |"), "в конце, как обычно, поле");
+    }
+
+    @Test
+    void lastStepIsNotReportedAsProgress() {
+        String output = run(small(), "2\nq\n", fakeClock(1000));
+        assertEquals(List.of("...выполнено 1 из 2"), progressLines(output), "про последний шаг скажет само поле");
+    }
+
+    @Test
+    void everyCommandStartsItsOwnProgressTimer() {
+        // Если бы отсчёт не начинался заново, вторая команда отчиталась бы уже после первого шага.
+        String output = run(small(), "3\n3\nq\n", fakeClock(500));
+        assertEquals(List.of("...выполнено 2 из 3", "...выполнено 2 из 3"), progressLines(output));
     }
 
     @Test
