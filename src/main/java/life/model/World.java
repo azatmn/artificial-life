@@ -7,7 +7,7 @@ import java.util.List;
  * Поле — двумерная сетка клеток. В клетке либо пусто, либо ровно один житель.
  * Только поле двигает жителей, поэтому координаты в поле и в самом жителе всегда совпадают.
  */
-public class World {
+public class World implements ReadOnlyWorld {
 
     private final int width;
     private final int height;
