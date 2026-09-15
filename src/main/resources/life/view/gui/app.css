@@ -1,0 +1,47 @@
+.root {
+    -fx-font-size: 13px;
+}
+
+.panel {
+    -fx-padding: 14;
+    -fx-background-color: #f5f6f8;
+    -fx-border-color: #dde1e6;
+    -fx-border-width: 0 0 0 1;
+}
+
+.title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.counter {
+    -fx-font-size: 14px;
+}
+
+.status {
+    -fx-text-fill: #c62828;
+    -fx-font-weight: bold;
+}
+
+.error-text {
+    -fx-text-fill: #c62828;
+}
+
+.text-field.invalid {
+    -fx-border-color: #e53935;
+    -fx-border-width: 2;
+    -fx-border-radius: 3;
+}
+
+/* Цвета линий графика совпадают с цветами клеток на поле */
+.chart-series-line {
+    -fx-stroke-width: 2px;
+}
+
+.default-color0.chart-series-line { -fx-stroke: #43a047; }
+.default-color1.chart-series-line { -fx-stroke: #f9a825; }
+.default-color2.chart-series-line { -fx-stroke: #e53935; }
+
+.default-color0.chart-legend-item-symbol { -fx-background-color: #43a047; }
+.default-color1.chart-legend-item-symbol { -fx-background-color: #f9a825; }
+.default-color2.chart-legend-item-symbol { -fx-background-color: #e53935; }
