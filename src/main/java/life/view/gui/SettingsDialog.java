@@ -65,6 +65,7 @@ public class SettingsDialog extends Dialog<Settings> {
         }
         Button randomSeed = new Button("Случайный seed");
         randomSeed.setOnAction(e -> inputs.get("seed").setText(Long.toString(new Random().nextLong())));
+        randomSeed.setMinWidth(Region.USE_PREF_SIZE);
         grid.add(randomSeed, 2, row - 1);
 
         Button defaults = new Button("По умолчанию");
