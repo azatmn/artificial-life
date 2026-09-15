@@ -9,8 +9,10 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import life.controller.SettingsForm;
 import life.model.InvalidSettingsException.Problem;
@@ -46,6 +48,10 @@ public class SettingsDialog extends Dialog<Settings> {
         grid.setHgap(10);
         grid.setVgap(6);
         grid.setPadding(new Insets(10));
+        // Подписи никогда не обрезаются многоточием: столбец не уже самой длинной подписи
+        ColumnConstraints labelColumn = new ColumnConstraints();
+        labelColumn.setMinWidth(Region.USE_PREF_SIZE);
+        grid.getColumnConstraints().addAll(labelColumn, new ColumnConstraints(), new ColumnConstraints());
         Map<String, String> texts = SettingsForm.toTexts(current);
         int row = 0;
         for (SettingsForm.Field field : SettingsForm.FIELDS) {
@@ -67,11 +73,13 @@ public class SettingsDialog extends Dialog<Settings> {
 
         errors.getStyleClass().add("error-text");
         errors.setWrapText(true);
-        errors.setMaxWidth(520);
+        errors.setMaxWidth(560);
+        // Блок ошибок растёт по высоте под все строки, а не обрезается
+        errors.setMinHeight(Region.USE_PREF_SIZE);
 
         ScrollPane scroll = new ScrollPane(grid);
         scroll.setFitToWidth(true);
-        scroll.setPrefViewportHeight(520);
+        scroll.setPrefViewportHeight(610);
         VBox content = new VBox(10, scroll, new HBox(defaults), errors);
         getDialogPane().setContent(content);
         getDialogPane().getButtonTypes().addAll(APPLY, CANCEL);

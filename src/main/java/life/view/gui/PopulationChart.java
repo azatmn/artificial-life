@@ -3,6 +3,7 @@ package life.view.gui;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.util.StringConverter;
 import life.model.Statistics;
 
 import java.util.ArrayList;
@@ -24,7 +25,20 @@ public class PopulationChart extends LineChart<Number, Number> {
         setCreateSymbols(false);
         getXAxis().setLabel("Шаг");
         getYAxis().setLabel("Численность");
-        ((NumberAxis) getXAxis()).setForceZeroInRange(false);
+        NumberAxis steps = (NumberAxis) getXAxis();
+        steps.setForceZeroInRange(false);
+        // Номер шага — целое число: «0», а не «0.00»
+        steps.setTickLabelFormatter(new StringConverter<>() {
+            @Override
+            public String toString(Number value) {
+                return Long.toString(Math.round(value.doubleValue()));
+            }
+
+            @Override
+            public Number fromString(String text) {
+                return Long.parseLong(text);
+            }
+        });
 
         plants.setName("Растения");
         herbivores.setName("Травоядные");
