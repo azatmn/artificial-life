@@ -1,5 +1,7 @@
 package life.view.console;
 
+import life.util.SafeText;
+
 import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -72,15 +74,7 @@ public final class CommandParser {
         return new Command.Invalid("число шагов должно быть от 1 до " + MAX_STEPS + ", а введено \"" + echo(digits) + "\"");
     }
 
-    /** Введённый текст для сообщения: не длиннее ECHO_LIMIT символов, управляющие символы заменены на «?». */
     private static String echo(String text) {
-        StringBuilder sb = new StringBuilder();
-        text.codePoints()
-                .limit(ECHO_LIMIT)
-                .forEach(cp -> sb.appendCodePoint(Character.isISOControl(cp) ? '?' : cp));
-        if (text.codePointCount(0, text.length()) > ECHO_LIMIT) {
-            sb.append("...");
-        }
-        return sb.toString();
+        return SafeText.preview(text, ECHO_LIMIT);
     }
 }
