@@ -1,0 +1,30 @@
+@startuml activity_predator
+!pragma layout smetana
+skinparam dpi 150
+skinparam defaultFontName Arial
+skinparam shadowing false
+title Ход хищника (Predator.act)
+
+start
+if (Хищник жив?) then (нет)
+  stop
+endif
+:Потратить энергию за ход\n(−predatorStepCost);
+if (Энергия = 0?) then (да)
+  :Погибнуть и исчезнуть с поля;
+  stop
+endif
+:Осмотреть квадрат 5×5 вокруг себя;
+if (Видит травоядное?) then (да)
+  :Шаг к ближайшему травоядному;
+  if (В выбранной клетке травоядное?) then (да)
+    :Съесть травоядное\n(+predatorFoodEnergy);
+  endif
+else (нет)
+  :Шаг в случайную свободную соседнюю клетку;
+endif
+if (Энергия > порога размножения\nи рядом есть свободная клетка?) then (да)
+  :Разделиться: потомок в соседней клетке\nполучает половину энергии;
+endif
+stop
+@enduml

@@ -1,0 +1,105 @@
+@startuml class_app
+!pragma layout smetana
+skinparam dpi 150
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+hide empty members
+title Классы управления и интерфейса
+
+package "life" {
+  class Launcher {
+    + {static} main(args : String[]) : void
+  }
+}
+
+package "life.view.gui" {
+  class LifeApp {
+    - controller : SimulationController
+    - timer : AnimationTimer
+    + start(stage : Stage) : void
+    + stop() : void
+    - refresh(force : boolean, now : long) : void
+  }
+  class WorldCanvas {
+    + draw(world : ReadOnlyWorld) : void
+  }
+  class PopulationChart {
+    + update(history : List<Statistics>) : void
+  }
+  class SettingsDialog {
+    - tryAccept() : boolean
+  }
+}
+
+package "life.controller" {
+  class SimulationController {
+    - running : boolean
+    - speed : int
+    + start() / pause() / toggleRunning()
+    + stepOnce() : void
+    + reset() : void
+    + applySettings(s : Settings) : void
+    + setSpeed(stepsPerSecond : int) : void
+    + tick(nowNanos : long) : void
+    + getHistory() : List<Statistics>
+    + getStatusMessage() : String
+  }
+  class SettingsForm {
+    + {static} FIELDS : List<Field>
+    + {static} toTexts(s : Settings) : Map
+    + {static} parse(texts : Map) : Result
+  }
+  class SpeedScale {
+    + {static} toSpeed(slider : double) : int
+    + {static} toSlider(speed : int) : double
+  }
+}
+
+package "life.view.console" {
+  class ConsoleMain {
+    + {static} main(args : String[]) : void
+  }
+  class ConsoleApp {
+    + run() : void
+    - makeSteps(count : int) : void
+  }
+  class CommandParser {
+    + {static} parse(line : String) : Command
+  }
+  class ConsoleRenderer {
+    + {static} render(world, stats) : String
+  }
+  interface Command <<sealed>>
+}
+
+package "life.util" {
+  class SafeText {
+    + {static} preview(text : String, limit : int) : String
+  }
+}
+
+package "life.model" {
+  class Simulation
+  class Settings <<record>>
+}
+
+Launcher ..> LifeApp : запускает
+LifeApp *-- WorldCanvas
+LifeApp *-- PopulationChart
+LifeApp --> SimulationController
+LifeApp ..> SettingsDialog : открывает
+LifeApp ..> SpeedScale
+SettingsDialog ..> SettingsForm
+SimulationController --> Simulation
+SimulationController --> Settings
+SettingsForm ..> Settings : создаёт
+SettingsForm ..> SafeText
+
+ConsoleMain ..> ConsoleApp : запускает
+ConsoleApp --> Simulation
+ConsoleApp ..> CommandParser
+ConsoleApp ..> ConsoleRenderer
+CommandParser ..> Command : создаёт
+CommandParser ..> SafeText
+@enduml

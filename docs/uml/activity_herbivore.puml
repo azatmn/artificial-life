@@ -1,0 +1,32 @@
+@startuml activity_herbivore
+!pragma layout smetana
+skinparam dpi 150
+skinparam defaultFontName Arial
+skinparam shadowing false
+title Ход травоядного (Herbivore.act)
+
+start
+if (Травоядное живо?) then (нет)
+  stop
+endif
+:Потратить энергию за ход\n(−herbivoreStepCost);
+if (Энергия = 0?) then (да)
+  :Погибнуть и исчезнуть с поля;
+  stop
+endif
+:Осмотреть квадрат 5×5 вокруг себя;
+if (Видит хищника?) then (да)
+  :Шаг в свободную клетку,\nсамую дальнюю от ближайшего хищника;
+elseif (Видит растение?) then (да)
+  :Шаг к ближайшему растению;
+  if (В выбранной клетке растение?) then (да)
+    :Съесть растение\n(+herbivoreFoodEnergy);
+  endif
+else (нет)
+  :Шаг в случайную свободную соседнюю клетку;
+endif
+if (Энергия > порога размножения\nи рядом есть свободная клетка?) then (да)
+  :Разделиться: потомок в соседней клетке\nполучает половину энергии;
+endif
+stop
+@enduml

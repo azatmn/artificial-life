@@ -1,0 +1,50 @@
+@startuml sequence_step
+skinparam dpi 150
+skinparam defaultFontName Arial
+skinparam shadowing false
+title Один кадр окна: шаг симуляции и перерисовка
+
+participant "AnimationTimer" as timer
+participant ":LifeApp" as app
+participant ":SimulationController" as ctrl
+participant ":Simulation" as sim
+participant ":World" as world
+participant "agent : Agent" as agent
+participant ":WorldCanvas" as canvas
+participant ":PopulationChart" as chart
+
+timer -> app : handle(now)
+activate app
+app -> ctrl : tick(now)
+activate ctrl
+note right of ctrl : считает, сколько шагов\nпора сделать при текущей скорости
+loop для каждого положенного шага (не более 20 за кадр)
+  ctrl -> sim : step()
+  activate sim
+  sim -> world : getAgents()
+  world --> sim : список жителей
+  sim -> sim : перемешать список
+  loop для каждого жителя, живого на начало шага
+    sim -> agent : act(world, random)
+    activate agent
+    agent -> world : getNeighbors(x, y, 2)
+    world --> agent : кого видно в квадрате 5×5
+    agent -> world : moveAgent(...) / setAgent(...)
+    agent --> sim
+    deactivate agent
+  end
+  sim --> ctrl
+  deactivate sim
+  ctrl -> sim : statistics()
+  sim --> ctrl : Statistics
+  ctrl -> ctrl : запомнить в истории
+end
+ctrl --> app
+deactivate ctrl
+app -> ctrl : getStatistics() / getWorld()
+ctrl --> app
+app -> canvas : draw(world)
+app -> chart : update(history)
+note right of chart : не чаще 4 раз в секунду
+deactivate app
+@enduml

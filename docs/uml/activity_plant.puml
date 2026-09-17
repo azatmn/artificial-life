@@ -1,0 +1,17 @@
+@startuml activity_plant
+!pragma layout smetana
+skinparam dpi 150
+skinparam defaultFontName Arial
+skinparam shadowing false
+title Ход растения (Plant.act)
+
+start
+if (Растение живо\n(не съедено)?) then (нет)
+  stop
+endif
+:Получить энергию «от солнца»\n(+plantGrowth, но не выше plantMaxEnergy);
+if (Энергия > порога размножения\nи рядом есть свободная клетка?) then (да)
+  :Разделиться: новое растение в соседней клетке\nполучает половину энергии;
+endif
+stop
+@enduml

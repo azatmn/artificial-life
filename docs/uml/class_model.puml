@@ -1,0 +1,137 @@
+@startuml class_model
+!pragma layout smetana
+skinparam dpi 150
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+hide empty members
+title Классы модели (пакет life.model)
+
+class Simulation {
+  - settings : Settings
+  - world : World
+  - random : Random
+  - step : long
+  + step() : void
+  + statistics() : Statistics
+  + getWorld() : ReadOnlyWorld
+  + getSettings() : Settings
+  + getStep() : long
+  - populate() : void
+}
+
+interface ReadOnlyWorld {
+  + getWidth() : int
+  + getHeight() : int
+  + getAgent(x : int, y : int) : Agent
+}
+
+class World {
+  - width : int
+  - height : int
+  - cells : Agent[][]
+  + isInside(p : Position) : boolean
+  + isEmpty(p : Position) : boolean
+  + setAgent(p : Position, agent : Agent) : void
+  + removeAgent(agent : Agent) : void
+  + moveAgent(agent : Agent, to : Position) : void
+  + getNeighbors(x : int, y : int, radius : int) : List<Agent>
+  + getEmptyCellsAround(center : Position) : List<Position>
+  + getAgents() : List<Agent>
+  + count(type : Class) : int
+}
+
+abstract class Agent {
+  - position : Position
+  - energy : int
+  - alive : boolean
+  + getPosition() : Position
+  + getEnergy() : int
+  + isAlive() : boolean
+  + {abstract} act(world : World, random : Random) : void
+  + {abstract} symbol() : char
+  # {abstract} reproductionThreshold() : int
+  # {abstract} createChild(energy : int) : Agent
+  # changeEnergy(delta : int) : void
+  # die(world : World) : void
+  # tryReproduce(world : World, random : Random) : Agent
+}
+
+class Plant {
+  - settings : Settings
+  + act(world : World, random : Random) : void
+  + symbol() : char
+}
+
+abstract class Animal {
+  + {static} VISION_RADIUS : int = 2
+  # settings : Settings
+  # {abstract} stepCost() : int
+  # {abstract} foodEnergy() : int
+  # {abstract} isFood(other : Agent) : boolean
+  # spendEnergy(world : World) : boolean
+  # look(world : World) : List<Agent>
+  # nearest(seen, filter, random) : Agent
+  # moveTowards(world, target, random) : void
+  # moveAwayFrom(world, threat, random) : void
+  # wander(world, random) : void
+}
+
+class Herbivore {
+  + act(world : World, random : Random) : void
+  + symbol() : char
+  # isFood(other : Agent) : boolean
+}
+
+class Predator {
+  + act(world : World, random : Random) : void
+  + symbol() : char
+  # isFood(other : Agent) : boolean
+}
+
+class Position <<record>> {
+  x : int
+  y : int
+  + translate(dx : int, dy : int) : Position
+  + distanceSquaredTo(other : Position) : long
+}
+
+class Statistics <<record>> {
+  step : long
+  plants : int
+  herbivores : int
+  predators : int
+  + total() : int
+  + allDead() : boolean
+  + anySpeciesExtinct() : boolean
+}
+
+class Settings <<record>> {
+  width, height : int
+  initialPlants, initialHerbivores, initialPredators : int
+  параметры растений, травоядных, хищников : int
+  seed : long
+  + {static} defaults() : Settings
+  + {static} builder() : Builder
+  + toBuilder() : Builder
+}
+
+class InvalidSettingsException {
+  + problems() : List<Problem>
+}
+
+ReadOnlyWorld <|.. World
+Agent <|-- Plant
+Agent <|-- Animal
+Animal <|-- Herbivore
+Animal <|-- Predator
+
+Simulation *-- "1" World
+Simulation --> "1" Settings
+Simulation ..> Statistics : создаёт
+World o-- "0..*" Agent : клетки
+Agent --> "0..1" Position
+Plant --> Settings
+Animal --> Settings
+Settings ..> InvalidSettingsException : выбрасывает
+@enduml

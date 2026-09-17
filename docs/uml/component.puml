@@ -1,0 +1,28 @@
+@startuml component
+!pragma layout smetana
+skinparam dpi 150
+skinparam defaultFontName Arial
+skinparam shadowing false
+title Компоненты (модуль life)
+
+package "Модуль life" {
+  component "life\n(Launcher)" as launcher
+  component "life.view.gui\n(окно JavaFX)" as gui
+  component "life.view.console\n(консольная версия)" as console
+  component "life.controller\n(логика окна)" as controller
+  component "life.model\n(модель: поле, агенты,\nсимуляция, параметры)" as model
+  component "life.util\n(SafeText)" as util
+}
+
+component "JavaFX\n(javafx.controls,\njavafx.graphics)" as javafx
+
+launcher ..> gui
+launcher ..> javafx
+gui ..> controller
+gui ..> model
+gui ..> javafx
+controller ..> model
+controller ..> util
+console ..> model
+console ..> util
+@enduml
