@@ -30,3 +30,7 @@ bin/
 .DS_Store
 ### Maven ###
 target/
+
+### Настройки IntelliJ — у каждого свои ###
+.idea/
+*.iml
